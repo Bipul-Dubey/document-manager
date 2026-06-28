@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { BookOpen, User, Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react'
+import { User, Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react'
 import { login, signup } from '@/app/login/actions'
+import AppLogo from './AppLogo'
 
 interface AuthFormProps {
   errorMessage?: string
@@ -25,7 +26,7 @@ export default function AuthForm({ errorMessage, initialMode = 'login' }: AuthFo
       <div className="relative z-10 w-full max-w-md p-8 sm:p-10 bg-white/70 backdrop-blur-xl rounded-3xl border border-white shadow-xl shadow-[#007979]/5">
         <div className="flex justify-center mb-8">
           <div className="p-3 bg-white rounded-2xl ring-1 ring-[#007979]/10 shadow-md">
-            <BookOpen className="h-10 w-10 text-[#007979]" />
+            <AppLogo className="h-10 w-10" />
           </div>
         </div>
 

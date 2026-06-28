@@ -1,9 +1,11 @@
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { FileText, Plus, LogOut } from 'lucide-react'
+import { Plus, LogOut } from 'lucide-react'
 import { createDocument, logout, deleteDocument } from './actions'
 import DeleteDocumentButton from '@/components/DeleteDocumentButton'
+import AppLogo from '@/components/AppLogo'
+import { FileText } from 'lucide-react'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -28,7 +30,7 @@ export default async function DashboardPage() {
         <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <div className="p-2 bg-gradient-to-br from-[#007979] to-[#24B1B1] rounded-xl shadow-sm">
-              <FileText className="h-6 w-6 text-white" />
+              <AppLogo className="h-6 w-6" />
             </div>
             <h1 className="text-2xl font-bold text-[#007979] tracking-tight">
               Hello, {userName}
