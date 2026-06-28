@@ -1,21 +1,22 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import type { OutputData } from '@editorjs/editorjs'
+import { OutputData } from '@editorjs/editorjs'
 
-const Editor = dynamic(() => import('./Editor'), {
+const TipTapEditor = dynamic(() => import('./TipTapEditor'), {
   ssr: false,
-  loading: () => <div className="text-center p-12 text-gray-500">Loading editor...</div>
+  loading: () => <div className="text-center p-12 text-[#007979]/50 font-medium">Loading editor...</div>
 })
 
 interface EditorWrapperProps {
   documentId: string
-  initialContent: OutputData | null
+  initialContent: any
   title: string
   onTitleAutoUpdate: (newTitle: string) => void
   onSave: () => void
+  isPreviewMode?: boolean
 }
 
 export default function EditorWrapper(props: EditorWrapperProps) {
-  return <Editor {...props} />
+  return <TipTapEditor {...props} />
 }

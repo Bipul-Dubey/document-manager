@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EdTech Editor Application
 
-## Getting Started
+A modern, local-first inspired collaborative document editor built with Next.js, Supabase, and TipTap.
 
-First, run the development server:
+## ✨ Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Secure Authentication**: Full login and signup flows powered by Supabase Auth with custom email enumeration protection.
+- **Rich Text Editing**: A robust, Word-like editing experience powered by TipTap. Features include a static top toolbar, Headings (H1-H6), Bold, Italic, Strikethrough, Lists, Blockquotes, Text Colors, and Highlighting.
+- **Auto-Saving**: Never lose your work. Changes are automatically synced to the database as you type.
+- **Smart Auto-Titles**: Start typing in a new "Unknown" document, and the app will automatically generate a title based on your first few words seamlessly in the background.
+- **Version History System**: Every time you finish editing and leave a document, a discrete snapshot is saved. You can open the "History" sidebar to preview past versions and instantly restore them.
+- **Medium Light Mode UI**: A premium, custom-designed aesthetic featuring a warm cream background (`#FFF0E4`), deep teal typography (`#007979`), bright teal accents (`#24B1B1`), and modern glassmorphic frosted-glass components.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠 Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework**: [Next.js 16](https://nextjs.org/) (App Router & Server Actions)
+- **Database & Auth**: [Supabase](https://supabase.com/) (PostgreSQL + Row Level Security)
+- **Editor Engine**: [TipTap](https://tiptap.dev/) (Headless ProseMirror framework)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/) with `@tailwindcss/typography`
+- **Icons**: [Lucide React](https://lucide.dev/)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ⚙️ How It Works
 
-## Learn More
+### 1. Document Management
+When a user logs in, they see a personalized Dashboard fetching all their documents from the Supabase `documents` table. Clicking "New Document" triggers a Server Action that inserts a blank row with the title "Unknown" and redirects the user to the `document/[id]` page.
 
-To learn more about Next.js, take a look at the following resources:
+### 2. The TipTap Editor (`TipTapEditor.tsx`)
+The core editor hooks into TipTap's `useEditor` and utilizes several extensions (`StarterKit`, `Color`, `TextStyle`, `Highlight`). 
+- **Auto-save**: The `onUpdate` hook triggers every time the document changes. It grabs the JSON content and securely pushes it to Supabase.
+- **Auto-Title**: If the document title is "Unknown", the `onUpdate` hook extracts the raw text of the first block and updates the database with a 4-word auto-generated title.
+- **Data Rescue**: If the editor detects a document saved in the old `Editor.js` format, it automatically intercepts it and converts the legacy blocks into HTML so data is never lost.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. Version History & Reliable Snapshots
+The versioning system works silently in the background:
+- **Tracking**: An internal flag (`hasUnsavedEdits`) flips to true when you type.
+- **Session End Detection**: A React `useEffect` cleanup function and a window `beforeunload` event listener detect when you navigate away or close the browser tab.
+- **Keepalive Fetch**: To ensure the snapshot saves even if the browser tab is immediately destroyed, it sends the payload to `api/documents/[id]/version` using a native fetch request with the `keepalive: true` browser flag.
+- **UI Restoration**: Opening the Version History sidebar fetches rows from `document_versions`. Clicking "Preview" sets the editor to `readOnly` mode. Clicking "Restore" forces the React component to remount (by updating its `key` prop), completely resetting the editor state with the historical JSON data.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🚀 Getting Started
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Set up your Supabase project and apply the SQL schemas from `schema.sql`.
+2. Add your Supabase URL and Anon Key to your `.env.local` file.
+3. Install dependencies: `npm install`
+4. Run the development server: `npm run dev`
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.

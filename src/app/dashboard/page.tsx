@@ -19,15 +19,25 @@ export default async function DashboardPage() {
     .select('*')
     .order('updated_at', { ascending: false })
 
+  // Extract user's name from metadata, fallback to email or 'User'
+  const userName = user.user_metadata?.name || user.email?.split('@')[0] || 'User'
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-          <h1 className="text-3xl font-bold text-gray-900">Your Documents</h1>
+    <div className="min-h-screen bg-[#FFF0E4] selection:bg-[#24B1B1]/30 font-sans">
+      <header className="bg-white/40 backdrop-blur-md border-b border-[#007979]/10 sticky top-0 z-20">
+        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+          <div className="flex items-center space-x-2">
+            <div className="p-2 bg-gradient-to-br from-[#007979] to-[#24B1B1] rounded-xl shadow-sm">
+              <FileText className="h-6 w-6 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-[#007979] tracking-tight">
+              Hello, {userName}
+            </h1>
+          </div>
           <form action={logout}>
             <button
               type="submit"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-gray-100 hover:bg-gray-200"
+              className="inline-flex items-center px-4 py-2 border border-[#007979]/20 text-sm font-semibold rounded-xl text-[#007979] bg-white/50 hover:bg-[#FFE0C5]/50 hover:border-[#007979]/40 transition-all shadow-sm"
             >
               <LogOut className="h-4 w-4 mr-2" />
               Sign Out
@@ -35,14 +45,16 @@ export default async function DashboardPage() {
           </form>
         </div>
       </header>
+
       <main>
-        <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-          <div className="px-4 py-6 sm:px-0">
-            <div className="flex justify-end mb-6">
+        <div className="max-w-7xl mx-auto py-8 sm:px-6 lg:px-8">
+          <div className="px-4 sm:px-0">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-xl font-semibold text-[#007979]/80">Recent Documents</h2>
               <form action={createDocument} className="flex gap-2">
                 <button
                   type="submit"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  className="inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-semibold rounded-xl text-white bg-gradient-to-r from-[#007979] to-[#24B1B1] hover:from-[#006060] hover:to-[#1a9090] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-[#FFF0E4] focus:ring-[#24B1B1] shadow-lg shadow-[#24B1B1]/20 transition-all transform hover:scale-[1.02]"
                 >
                   <Plus className="h-5 w-5 mr-2" />
                   New Document
@@ -51,27 +63,27 @@ export default async function DashboardPage() {
             </div>
 
             {documents && documents.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {documents.map((doc) => (
-                  <div key={doc.id} className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow duration-200 ease-in-out relative">
-                    <Link href={`/document/${doc.id}`} className="block p-5 h-full">
-                      <div className="flex items-center pr-8">
-                        <div className="flex-shrink-0">
-                          <FileText className="h-6 w-6 text-gray-400" />
+                  <div key={doc.id} className="group bg-white/60 backdrop-blur-sm border border-[#007979]/10 overflow-hidden shadow-sm hover:shadow-md hover:shadow-[#007979]/10 hover:border-[#007979]/30 rounded-2xl transition-all duration-200 ease-in-out relative flex flex-col transform hover:-translate-y-1">
+                    <Link href={`/document/${doc.id}`} className="flex-1 p-5 flex flex-col justify-between">
+                      <div className="flex items-start pr-8">
+                        <div className="flex-shrink-0 mt-0.5">
+                          <FileText className="h-5 w-5 text-[#24B1B1]" />
                         </div>
-                        <div className="ml-5 w-0 flex-1">
-                          <dl>
-                            <dt className="text-sm font-medium text-gray-500 truncate">
-                              {doc.title}
-                            </dt>
-                            <dd className="mt-1 text-xs text-gray-400">
-                              Last updated: {new Date(doc.updated_at).toLocaleDateString()}
-                            </dd>
-                          </dl>
+                        <div className="ml-3 w-0 flex-1">
+                          <h3 className="text-base font-bold text-[#007979] truncate group-hover:text-[#005050] transition-colors">
+                            {doc.title}
+                          </h3>
                         </div>
                       </div>
+                      <div className="mt-4 flex justify-between items-center">
+                        <p className="text-xs font-medium text-[#007979]/60">
+                          {new Date(doc.updated_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </p>
+                      </div>
                     </Link>
-                    <form action={deleteDocument} className="absolute top-4 right-4 z-10">
+                    <form action={deleteDocument} className="absolute top-3 right-3 z-10">
                       <input type="hidden" name="id" value={doc.id} />
                       <DeleteDocumentButton />
                     </form>
@@ -79,12 +91,25 @@ export default async function DashboardPage() {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 bg-white rounded-lg shadow border border-gray-200">
-                <FileText className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No documents</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  Get started by creating a new document.
+              <div className="text-center py-16 bg-white/40 backdrop-blur-sm rounded-3xl border-2 border-dashed border-[#007979]/20 shadow-sm">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[#FFE0C5] mb-4">
+                  <FileText className="h-8 w-8 text-[#007979]" />
+                </div>
+                <h3 className="text-lg font-bold text-[#007979]">No documents yet</h3>
+                <p className="mt-2 text-sm text-[#007979]/70 max-w-sm mx-auto">
+                  Create your first document to start exploring the local-first collaborative experience.
                 </p>
+                <div className="mt-6">
+                  <form action={createDocument}>
+                    <button
+                      type="submit"
+                      className="inline-flex items-center px-4 py-2 border border-[#007979]/20 text-sm font-semibold rounded-xl text-[#007979] bg-white hover:bg-[#FFE0C5]/50 transition-all shadow-sm"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create one now
+                    </button>
+                  </form>
+                </div>
               </div>
             )}
           </div>

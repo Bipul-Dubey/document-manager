@@ -39,6 +39,40 @@ FOR DELETE
 TO authenticated
 USING (auth.uid() = owner_id);
 
+-- Document Versions Table
+CREATE TABLE IF NOT EXISTS public.document_versions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  document_id UUID REFERENCES public.documents(id) ON DELETE CASCADE,
+  content JSONB NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL
+);
+
+-- Enable RLS on document_versions
+ALTER TABLE public.document_versions ENABLE ROW LEVEL SECURITY;
+
+-- Allow users to view versions of documents they own
+CREATE POLICY "Users can view their document versions" 
+ON public.document_versions FOR SELECT 
+USING (
+  EXISTS (
+    SELECT 1 FROM public.documents 
+    WHERE documents.id = document_versions.document_id 
+    AND documents.owner_id = auth.uid()
+  )
+);
+
+-- Allow users to insert versions of documents they own
+CREATE POLICY "Users can insert their document versions" 
+ON public.document_versions FOR INSERT 
+WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.documents 
+    WHERE documents.id = document_versions.document_id 
+    AND documents.owner_id = auth.uid()
+  )
+);
+
 -- Function to automatically update the updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
